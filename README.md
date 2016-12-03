@@ -33,6 +33,12 @@ Normalmente ogni ciclo di gioco dura 1 secondo, tuttavia è possibile modificarn
 la variabile `interval` presente nel file `config.js` del progetto client.
 
 # Installazione client
+* scaricare il progetto Client Bot
+* aprire Google Chrome alla URL `chrome://extensions/`
+* abilitare la `modalità sviluppatore`
+* cliccare su `Carica estensione non pacchettizata...`
+* selezionare la cartella in cui si è scaricato il Client Bot
+* accedere alla pagina [http://gabrielecirulli.github.io/2048/](http://gabrielecirulli.github.io/2048/) 
 
 # Interfaccia di comunicazione
 Il client bot, per funzionare correttamente, necessita che ci sia un server in ascolto all'indirizzo http://localhost:3000.
