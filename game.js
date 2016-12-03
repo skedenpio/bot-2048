@@ -1,89 +1,71 @@
-var exports = {};
-
-exports.Move = {
+var Move = {
     UP: 0,
     RIGHT: 1,
     DOWN: 2,
     LEFT: 3
 }
 
-exports.getColScore = function (col) {
-    return this.getRowScore(col);
+var MoveToKeyCode = {
+    0: 38, // Up
+    1: 39, // Right
+    2: 40, // Down
+    3: 37, // Left
 }
 
-exports.getRowScore = function (row) {
-    var score = 0;
-    var cell = 0;
+/**
+ * Execute a move repeatly.
+ * The interval is set in GameConfig.
+ */
+function startGame() {
+    setTimeout(function () {
+        var grid = getGrid(document);
+        getBestMove(grid, function(move){
+            moveTo(move);
+            startGame();
+        });
+    }, GameConfig.interval);
+}
 
-    for (var i = 0; i < row.length; i++) {
-        if (row[i] == 0) continue;
+startGame();
 
-        if (cell == 0) {
-            cell = row[i];
-        } else {
-            if (cell == row[i]) {
-                score += 2 * cell;
-                cell = 0;
-            } else {
-                cell = row[i];
-            }
+/**
+ * Ask to the REST API at http://localhost:3000/next-move
+ * which is the best next move and return it
+ */
+function getBestMove(grid, cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:3000/next-move", true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+            cb(xhr.responseText);
         }
     }
-    return score;
-};
+    xhr.send(JSON.stringify(grid));
+}
 
-exports.getHGridScore = function (grid) {
-    var score = 0;
-    var self = this;
+/**
+ * Execute the next move in the grid.
+ */
+function moveTo(move) {
+    evt = new KeyboardEvent('keydown', {
+        bubbles: true
+    })
 
-    grid.forEach(function (row) {
-        score += self.getRowScore(row);
+    // Chromium Hack   
+    Object.defineProperty(evt, 'which', {
+        get: function () {
+            return MoveToKeyCode[move];
+        }
     });
 
-    return score;
-};
-
-exports.getVGridScore = function (grid) {
-    var tGrid = this.transposed(grid);
-    return this.getHGridScore(tGrid);
-};
-
-exports.transposed = function (grid) {
-    var tGrid = new Array(grid.length);
-
-    for (var r = 0; r < grid.length; r++) {
-        tGrid[r] = new Array(grid[r].length);
-        for (var c = 0; c < grid[r].length; c++) {
-            tGrid[r][c] = grid[c][r];
-        }
-    }
-
-    return tGrid;
-};
-
-exports.getBestMove = function (grid) {
-    var result;
-
-    if (this.getHGridScore(grid) > this.getVGridScore(grid))
-        result = this.getValueRandomly(this.Move.RIGHT, this.Move.LEFT);
-    else
-        result = this.getValueRandomly(this.Move.DOWN, this.Move.UP);
-
-    return result;
-};
-
-exports.getValueRandomly = function (val1, val2) {
-    var result;
-
-    if (Math.random() > 0.5)
-        result = val1;
-    else
-        result = val2;
-
-    return result;
+    document.body.dispatchEvent(evt);
 }
 
-exports.getGrid = function (dom) {
+/**
+ * Return the grid status as a matrix of integer. 
+ */
+function getGrid(dom) {
     var grid = [];
 
     for (var r = 1; r < 5; r++) {
@@ -92,8 +74,8 @@ exports.getGrid = function (dom) {
             var cell = 0;
             try {
                 cell = dom
-                  .getElementsByClassName('tile-position-'+c+'-'+r)[0]
-                  .getElementsByClassName('tile-inner')[0].innerHTML;
+                    .getElementsByClassName('tile-position-' + c + '-' + r)[0]
+                    .getElementsByClassName('tile-inner')[0].innerHTML;
             } catch (e) {
             }
 
@@ -104,22 +86,6 @@ exports.getGrid = function (dom) {
 
     return grid;
 }
-
-var gm = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalStorageManager);
-var dom = document;
-
-function runGame() {
-    setTimeout(function () {
-        var grid = exports.getGrid(dom);
-        var move = exports.getBestMove(grid)
-        gm.inputManager.emit('move', move);
-        runGame();
-    }, 10);
-}
-
-runGame();
-
-
 
 
 
