@@ -10,11 +10,12 @@
     },
 
     "permissions": [
-        "http://localhost:3000/"
     ],
 
     "background": {
-        "scripts": []
+        "scripts": [
+            "background.js"
+        ]
     },
 
     "content_scripts": [
@@ -24,5 +25,5 @@
         }
     ],
 
-    "web_accessible_resources": ["game.js","config.js"]
+    "web_accessible_resources": ["game.js"]
 }

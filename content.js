@@ -1,7 +1,5 @@
-var config = document.createElement('script');
-config.setAttribute('src', chrome.extension.getURL('config.js'));
-document.head.appendChild(config);
+var s = document.createElement('script');
 
-var game = document.createElement('script');
-game.setAttribute('src', chrome.extension.getURL('game.js'));
-document.head.appendChild(game);
+// TODO: add "game.js" to web_accessible_resources in manifest.json
+s.setAttribute('src', chrome.extension.getURL('game.js'));
+document.head.appendChild(s);
